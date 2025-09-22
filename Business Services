@@ -1,0 +1,50 @@
+<j:jelly xmlns:j="jelly:core" xmlns:g="glide">
+    <g:evaluate>
+        var allServicesCount = new GlideAggregate('cmdb_ci');
+        allServicesCount.addEncodedQuery('cmdb_ci_service.service_classification=Application Service^ORsys_class_name={List Classes}^operational_status!=Retired');
+        allServicesCount.addAggregate('COUNT');
+        allServicesCount.query();
+        var allServicesTotal = allServicesCount.next() ? allServicesCount.getAggregate('COUNT') : '0';
+
+        var applicationServicesCount = new GlideAggregate('cmdb_ci');
+        applicationServicesCount.addEncodedQuery('operational_status!=Retired^cmdb_ci_service.service_classification=Application Service');
+        applicationServicesCount.addAggregate('COUNT');
+        applicationServicesCount.query();
+        var applicationServicesTotal = applicationServicesCount.next() ? applicationServicesCount.getAggregate('COUNT') : '0';
+
+        var technologyServicesCount = new GlideAggregate('cmdb_ci');
+        technologyServicesCount.addEncodedQuery(operational_status!=Retired^sys_class_name=cmdb_ci_service_technical');
+        technologyServicesCount.addAggregate('COUNT');
+        technologyServicesCount.query();
+        var technologyServicesTotal = technologyServicesCount.next() ? technologyServicesCount.getAggregate('COUNT') : '0';
+
+		var serviceOfferingCount = new GlideAggregate('cmdb_ci');
+        serviceOfferingCount.addEncodedQuery('operational_status!=Retired^sys_class_name=service_offering');
+        serviceOfferingCount.addAggregate('COUNT');
+        serviceOfferingCount.query();
+        var serviceOfferingTotal = serviceOfferingCount.next() ? serviceOfferingCount.getAggregate('COUNT') : '0';
+
+    </g:evaluate>
+
+    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">
+        <p style="font-size: 10pt; margin: 2px 0; color: rgb(0, 0, 0);">
+            <img src="<image link>" width="25" height="25" />
+            &#160; <a href="<ServiceNow Link>" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">All Services (${allServicesTotal})</a>
+            <hr style="border: 1px solid #ccc; margin: 10px 0;" />
+        </p>
+        <ul style="list-style-type: none; padding: 0; margin: 0 0 0 0px;">
+            <li style="margin: 2px 0; color: rgb(0, 0, 0);">
+                <img src="<image link>" width="20" height="20" />
+                &#160;<a href="<ServiceNow Link>" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">Application Services (${applicationServicesTotal})</a>
+            </li>
+            <li style="margin: 2px 0; color: rgb(0, 0, 0);">
+                <img src="<image link>" width="20" height="20" />
+                &#160; <a href="<ServiceNow Link>" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">Technology Management Services (${technologyServicesTotal})</a>
+            </li>
+			<li style="margin: 2px 0; color: rgb(0, 0, 0);">
+                <img src="<image link>" width="20" height="20" />
+                &#160; <a href="<ServiceNow Link>" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">Service Offerings (${serviceOfferingTotal})</a>
+            </li>
+        </ul>
+    </div>
+</j:jelly>
