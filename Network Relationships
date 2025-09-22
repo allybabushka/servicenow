@@ -1,0 +1,48 @@
+<j:jelly xmlns:j="jelly:core" xmlns:g="glide">
+
+  <div style="font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">
+    <hr style="border: 1px solid #ccc; margin: 10px 0;" />
+    <div style="margin-left: 0px; color: rgb(0, 0, 0);">
+
+      <IP Router to IP Switch to Server>
+      <div>
+        <span>
+          <img src="<image link>"
+               alt="IP Address Icon" width="20" height="20" />&#160;
+          <a style="color: rgb(0, 0, 0);"
+             href="<ServiceNow Query Builder Link>"
+             target="_blank" rel="noopener">
+            IP Router to IP Switch to Server
+          </a>
+        </span>
+      </div>
+
+      <!-- F5 Big-IP to Servers -->
+      <div>
+        <span>
+          <img src="<image link>"
+               alt="IP Address Icon" width="20" height="20" />&#160;
+          <a style="font-size: 10pt; color: rgb(0, 0, 0);"
+             href="<ServiceNow Query Builder Link>"
+             target="_blank" rel="noopener">
+            F5 Big-IP to Servers
+          </a>
+        </span>
+      </div>
+
+      <!-- IP Switch to Server to Application -->
+      <div>
+        <span>
+          <img src="<image link>"
+               alt="IP Address Icon" width="20" height="20" />&#160;
+          <a style="color: rgb(0, 0, 0);"
+             href="<ServiceNow Query Builder Link>"
+             target="_blank" rel="noopener">
+            IP Switch to Server to Application
+          </a>
+        </span>
+      </div>
+
+    </div>
+  </div>
+</j:jelly>
