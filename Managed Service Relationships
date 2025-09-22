@@ -1,0 +1,91 @@
+<j:jelly xmlns:j="jelly:core" xmlns:g="glide">
+    <g:evaluate>
+
+        // Count relationships between Application Services and Servers
+        var applicationsToServersCount = new GlideAggregate('cmdb_rel_ci');
+        applicationsToServersCount.addEncodedQuery(
+            'type=<relationship_type_id>' +  // Replace with actual relationship type ID
+            '^child.sys_class_nameIN{List classes} +
+            '^parent.sys_class_name=cmdb_ci_service' +
+            '^child.operational_status!=Retired^parent.operational_status!=Retired' +
+            '^parent.<service_classification>=Application Service'
+        );
+        applicationsToServersCount.addAggregate('COUNT');
+        applicationsToServersCount.query();
+        var applicationsToServersTotal = applicationsToServersCount.next() ? applicationsToServersCount.getAggregate('COUNT') : '0';
+
+        // Count relationships between Technical Services and Servers
+        var technicalServicesToServersCount = new GlideAggregate('cmdb_rel_ci');
+        technicalServicesToServersCount.addEncodedQuery(
+            'type=<relationship_type_id>' +
+            '^child.sys_class_nameIN{List classes} +
+            '^parent.sys_class_name=cmdb_ci_service_technical' +
+            '^child.operational_status!=Retired^parent.operational_status!=Retired' 
+        );
+        technicalServicesToServersCount.addAggregate('COUNT');
+        technicalServicesToServersCount.query();
+        var technicalServicesToServersTotal = technicalServicesToServersCount.next() ? technicalServicesToServersCount.getAggregate('COUNT') : '0';
+
+        // Count relationships between Services and Network Devices
+        var servicesToNetworkDevicesCount = new GlideAggregate('cmdb_rel_ci');
+        servicesToNetworkDevicesCount.addEncodedQuery(
+            'type=<relationship_type_id>' +
+            '^child.sys_class_nameIN{List Servers} +
+            '^parent.sys_class_name=cmdb_ci_service' +
+            '^child.operational_status!=Retired^parent.operational_status!=Retired' 
+        );
+        servicesToNetworkDevicesCount.addAggregate('COUNT');
+        servicesToNetworkDevicesCount.query();
+        var servicesToNetworkDevicesTotal = servicesToNetworkDevicesCount.next() ? servicesToNetworkDevicesCount.getAggregate('COUNT') : '0';
+
+        // Count relationships between Services and Mainframes
+        var servicesToMainframesCount = new GlideAggregate('cmdb_rel_ci');
+        servicesToMainframesCount.addEncodedQuery(
+            'type=<relationship_type_id>' +
+            '^child.sys_class_nameIN{List Classes} +
+            '^parent.sys_class_name=cmdb_ci_service' +
+            '^child.operational_status!=Retired^parent.operational_status!=Retired'
+        );
+        servicesToMainframesCount.addAggregate('COUNT');
+        servicesToMainframesCount.query();
+        var servicesToMainframesTotal = servicesToMainframesCount.next() ? servicesToMainframesCount.getAggregate('COUNT') : '0';
+
+        // Count relationships between Services and Storage Devices
+        var servicesToStorageDevicesCount = new GlideAggregate('cmdb_rel_ci');
+        servicesToStorageDevicesCount.addEncodedQuery(
+            'type=<relationship_type_id>' +
+            '^child.sys_class_nameIN{List Classes} +
+            '^parent.sys_class_name=cmdb_ci_service' +
+            '^child.operational_status!=Retired^parent.operational_status!=Retired' 
+        );
+        servicesToStorageDevicesCount.addAggregate('COUNT');
+        servicesToStorageDevicesCount.query();
+        var servicesToStorageDevicesTotal = servicesToStorageDevicesCount.next() ? servicesToStorageDevicesCount.getAggregate('COUNT') : '0';
+
+    </g:evaluate>
+
+    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">
+        <hr style="border: 1px solid #ccc; margin: 10px 0;" />
+
+        <!-- Display counts with icons and links -->
+        <div style="margin-left: 0px;">
+            <div style="color: rgb(0, 0, 0);">
+                <span>
+                    <img src="<insert generic icon link>" alt="Applications Icon" width="20" height="k>"ns to Servers (${applicationsToServersTotal})</a>
+                </span>
+            </div>
+
+            <div style="color: rgb(0, 0, 0);">
+                <span>
+                    <img src="<insert generic icon link>" alt="Technical Services Icon" width="21 link>" targets to Servers (${technicalServicesToServersTotal})</a>
+                </span>
+            </div>
+
+            <div style="color: rgb(0, 0, 0);">
+                <span>
+                    <img src="<insert generic icon link>" alt="Mainframes Iconrt generic link>Services to Mainframes (${servicesToMainframesTotal})</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</j:jelly>
