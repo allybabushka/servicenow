@@ -1,0 +1,71 @@
+<j:jelly xmlns:j="jelly:core" xmlns:g="glide">
+    <g:evaluate>
+        var allServersCount = new GlideAggregate('cmdb_ci');
+        allServersCount.addEncodedQuery('sys_class_name={List Classes}^operational_status!=Retired');
+        allServersCount.addAggregate('COUNT');
+        allServersCount.query();
+        allServersCount.next();
+        var allServersTotal = allServersCount.getAggregate('COUNT');
+
+        var esxServersCount = new GlideAggregate('cmdb_ci_esx_server');
+        esxServersCount.addEncodedQuery('operational_status!=Retired');
+        esxServersCount.addAggregate('COUNT');
+        esxServersCount.query();
+        esxServersCount.next();
+        var esxServersTotal = esxServersCount.getAggregate('COUNT');
+
+        var linuxServersCount = new GlideAggregate('cmdb_ci_linux_server');
+        linuxServersCount.addEncodedQuery('operational_status!=Retired');
+        linuxServersCount.addAggregate('COUNT');
+        linuxServersCount.query();
+        linuxServersCount.next();
+        var linuxServersTotal = linuxServersCount.getAggregate('COUNT');
+
+        var solarisServersCount = new GlideAggregate('cmdb_ci_solaris_server');
+        solarisServersCount.addEncodedQuery('operational_status!=Retired');
+        solarisServersCount.addAggregate('COUNT');
+        solarisServersCount.query();
+        solarisServersCount.next();
+        var solarisServersTotal = solarisServersCount.getAggregate('COUNT');
+
+        var azureVMsCount = new GlideAggregate('cmdb_ci_azure_vm');
+        azureVMsCount.addEncodedQuery('operational_status!=Retired');
+        azureVMsCount.addAggregate('COUNT');
+        azureVMsCount.query();
+        azureVMsCount.next();
+        var azureVMsTotal = azureVMsCount.getAggregate('COUNT');
+
+        var winServersCount = new GlideAggregate('cmdb_ci_win_server');
+        winServersCount.addEncodedQuery('operational_status!=Retired');
+        winServersCount.addAggregate('COUNT');
+        winServersCount.query();
+        winServersCount.next();
+        var winServersTotal = winServersCount.getAggregate('COUNT');
+    </g:evaluate>
+
+    <div style="font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">
+        <p style="font-size: 10pt; margin: 2px 0; color: rgb(0, 0, 0);">
+            <img src="<image link>" width="25" height="25" />
+            &#160; <a href="<ServiceNow link>" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">All Servers (${allServersTotal})</a>
+        </p>
+		<hr style="border: 1px solid #ccc; margin: 10px 0;" />
+        <ul style="list-style-type: none; padding: 0; margin: 0 0 0 0px;">
+            <li style="margin: 2px 0; color: rgb(0, 0, 0);">
+                <img src="image link" width="20" height="20" />
+                &#160; <a href="ServiceNow link" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">ESX Servers (${esxServersTotal})</a>
+            </li>
+            <li style="margin: 2px 0; color: rgb(0, 0, 0);">
+                <img src="image link" width="20" height="20" />
+                &#160; <a href="ServiceNow link" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">Linux Servers (${linuxServersTotal})</a>
+            </li>
+            <li style="margin: 2px 0; color: rgb(0, 0, 0);">
+                <img src="image link" width="20" height="20" />
+                &#160; <a href="ServiceNow link" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">Solaris Servers (${solarisServersTotal})</a>
+            </li>
+            <li style="margin: 2px 0; color: rgb(0, 0, 0);">
+                <img src="image link" width="20" height="20" />
+                &#160; <a href="ServiceNow link" target="_blank" rel="noopener" style="color: rgb(0, 0, 0); text-decoration: none;">Windows Servers (${winServersTotal})</a>
+            </li>
+        </ul>
+    </div>
+</j:jelly>
