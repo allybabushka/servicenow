@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+<script>
+var my_dashboardMessageHandler = new DashboardMessageHandler("my_unique_id");
+
+function publishFilter () {
+    var filter_message = {};
+    filter_message.id = "my_unique_id";
+    var startdatetime = document.getElementById('DateTime1').value;
+    var enddatetime = document.getElementById('DateTime2').value;
+    var startdate = startdatetime.split(" ")[0];
+    var startdate_format = startdate.split("-")[2] + "-" + startdate.split("-")[0] + "-" + startdate.split("-")[1];
+    var starttime = startdatetime.split(" ")[1];
+    var enddate = enddatetime.split(" ")[0];
+    var enddate_format = enddate.split("-")[2] + "-" + enddate.split("-")[0] + "-" + enddate.split("-")[1];
+    var endtime = enddatetime.split(" ")[1];
+
+    <!-- Add your own filter query logic here -->
+    switch (filter_message.table) {
+        case "change_request":
+            filter_message.filter = "start_dateBETWEENjavascript:gs.dateGenerate('" + startdate_format + "','" + starttime + "')@javascript:gs.dateGenerate('" + enddate_format + "','" + endtime + "')";
+            break;
+        case "change_task":
+            filter_message.filter = "planned_start_dateBETWEENjavascript:gs.dateGenerate('" + startdate_format + "','" + starttime + "')@javascript:gs.dateGenerate('" + enddate_format + "','" + endtime + "')";
+            break;
+        case "incident":
+        case "problem":
+        case "sc_task":
+        case "u_problem_tasks":
+        case "vtb_task":
+            filter_message.filter = "opened_atBETWEENjavascript:gs.dateGenerate('" + startdate_format + "','" + starttime + "')@javascript:gs.dateGenerate('" + enddate_format + "','" + endtime + "')";
+            break;
+        case "vtb_card":
+            filter_message.filter = "sys_created_onBETWEENjavascript:gs.dateGenerate('" + startdate_format + "','" + starttime + "')@javascript:gs.dateGenerate('" + enddate_format + "','" + endtime + "')";
+            break;
+        default:
+            filter_message.filter = "opened_atBETWEENjavascript:gs.dateGenerate('" + startdate_format + "','" + starttime + "')@javascript:gs.dateGenerate('" + enddate_format + "','" + endtime + "')";
+    }
+
+    SNC.canvas.interactiveFilters.setDefaultValue({
+        id: filter_message.id,
+        filters: [filter_message]
+    }, false);
+    my_dashboardMessageHandler.publishFilter(filter_message.table, filter_message.filter);
+}
+</script>
+</j:jelly>
