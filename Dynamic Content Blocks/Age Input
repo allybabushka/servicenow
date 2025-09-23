@@ -1,0 +1,37 @@
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide">
+  <script>
+    function getQuery() {
+      var minDays = parseInt($j('#age_input_min').val(), 10) || 0;
+      var maxDays = parseInt($j('#age_input_max').val(), 10) || 10000;
+
+      return 'age_duration&gt;=javascript:gs.getDurationDate(\'' + minDays + ' 0:0:0\')' +
+             '^age_duration&lt;=javascript:gs.getDurationDate(\'' + maxDays + ' 0:0:0\')';
+    }
+
+    function publishFilter() {
+      var filter_message = {
+        id: "age_filter",
+        table: "<insert table>",
+        filter: getQuery()
+      };
+
+      SNC.canvas.interactiveFilters.setDefaultValue({
+        id: filter_message.id,
+        filters: [filter_message]
+      }, false);
+
+      var handler = new DashboardMessageHandler("age_filter");
+      handler.publishFilter(filter_message.table, filter_message.filter);
+    }
+  </script>
+
+  <div class="interactive-filter">
+    <label for="age_input_min">${gs.getMessage('Age (days) from')}</label>
+    <input type="number" id="age_input_min" name="age_input_min" min="0" max="10000" step="1"
+           style="width: 120px; padding: 4px;" onchange="publishFilter();" />
+
+    <label for="age_input_max">${gs.getMessage('to')}</label>
+    <input type="number" id="age_input_max" name="age_input_max" min="0" max="10000" step="1"
+           style="width: 120px; padding: 4px;" onchange="publishFilter();" />
+  </div>
+</j:jelly>
