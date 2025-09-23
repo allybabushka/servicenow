@@ -1,0 +1,150 @@
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+    <style>
+        #dateRange {
+            width: 250px; /* Adjust the width as needed */
+            height: 60px; /* Adjust the height as needed */
+            font-size: 16px; /* Adjust the font size as needed */
+            font-weight: bold;
+            border: none solid #000; /* Thicker border */
+            border-radius: 10px; /* Rounded corners */
+            margin-top: 20px;
+        }
+    </style>
+    <select id="dateRange" onchange="filterResults()">
+        <option value="" selected="selected">Please select a date range:</option>
+        <option value="this_week">This Week</option>
+        <option value="last_week">Last Week</option>
+        <option value="this_month">This Month</option>
+        <option value="last_month">Last Month</option>
+        <option value="this_year">This Year</option>
+        <option value="last_year">Last Year</option>
+        <option value="this_quarter">This Quarter</option>
+        <option value="last_quarter">Last Quarter</option>
+    </select>
+    <script>
+        var my_dashboardMessageHandler = new DashboardMessageHandler("my_unique_id");
+
+        function filterResults() {
+            var dateRange = document.getElementById('dateRange').value;
+            if (!dateRange) {
+                return; // Do nothing if the dummy option is selected
+            }
+
+            var dateRanges = {
+                'this_week': getThisWeekRange(),
+                'last_week': getLastWeekRange(),
+                'this_month': getThisMonthRange(),
+                'last_month': getLastMonthRange(),
+                'this_year': getThisYearRange(),
+                'last_year': getLastYearRange(),
+                'this_quarter': getThisQuarterRange(),
+                'last_quarter': getLastQuarterRange()
+            };
+            
+            var dateRangeValues = dateRanges[dateRange];
+            var startDate = dateRangeValues[0];
+            var endDate = dateRangeValues[1];
+            
+            publishFilter(startDate, endDate);
+        }
+
+        function getThisWeekRange() {
+            var start = new Date();
+            start.setDate(start.getDate() - start.getDay());
+            var end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            return [start.toISOString(), end.toISOString()];
+        }
+
+        function getLastWeekRange() {
+            var start = new Date();
+            start.setDate(start.getDate() - start.getDay() - 7);
+            var end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            return [start.toISOString(), end.toISOString()];
+        }
+
+        function getThisMonthRange() {
+            var start = new Date();
+            start.setDate(1);
+            var end = new Date();
+            return [start.toISOString(), end.toISOString()];
+        }
+
+        function getLastMonthRange() {
+            var start = new Date();
+            start.setMonth(start.getMonth() - 1);
+            start.setDate(1);
+            var end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+            return [start.toISOString(), end.toISOString()];
+        }
+
+        function getThisYearRange() {
+            var start = new Date(new Date().getFullYear(), 0, 1);
+            var end = new Date(new Date().getFullYear(), 11, 31);
+            return [start.toISOString(), end.toISOString()];
+        }
+
+        function getLastYearRange() {
+            var start = new Date(new Date().getFullYear() - 1, 0, 1);
+            var end = new Date(new Date().getFullYear() - 1, 11, 31);
+            return [start.toISOString(), end.toISOString()];
+        }
+
+        function getThisQuarterRange() {
+            var currentMonth = new Date().getMonth();
+            var startMonth = currentMonth - (currentMonth % 3);
+            var start = new Date(new Date().getFullYear(), startMonth, 1);
+            var end = new Date(new Date().getFullYear(), startMonth + 3, 0);
+            return [start.toISOString(), end.toISOString()];
+        }
+
+        function getLastQuarterRange() {
+            var currentMonth = new Date().getMonth();
+            var startMonth = currentMonth - (currentMonth % 3) - 3;
+            var start = new Date(new Date().getFullYear(), startMonth, 1);
+            var end = new Date(new Date().getFullYear(), startMonth + 3, 0);
+            return [start.toISOString(), end.toISOString()];
+        }
+
+        function publishFilter(startDate, endDate) {
+            var startDateTime = new Date(startDate);
+            var endDateTime = new Date(endDate);
+
+            var startdate_format = startDateTime.getFullYear() + "-" + (startDateTime.getMonth() + 1).toString().padStart(2, '0') + "-" + startDateTime.getDate().toString().padStart(2, '0');
+            var starttime = startDateTime.toTimeString().split(' ')[0];
+            var enddate_format = endDateTime.getFullYear() + "-" + (endDateTime.getMonth() + 1).toString().padStart(2, '0') + "-" + endDateTime.getDate().toString().padStart(2, '0');
+            var endtime = endDateTime.toTimeString().split(' ')[0];
+
+            var taskFilter = {
+                id: "task_filter",
+                table: "task",
+                filter: "typeINincident^opened_atBETWEENjavascript:gs.dateGenerate('" + startdate_format + "','" + starttime + "')@javascript:gs.dateGenerate('" + enddate_format + "','" + endtime + "')^ORclosed_atBETWEENjavascript:gs.dateGenerate('" + startdate_format + "','" + starttime + "')@javascript:gs.dateGenerate('" + enddate_format + "','" + endtime + "')^ORclosed_atISEMPTY"
+            };
+
+            var asmtMetricResultFilter = {
+                id: "asmt_metric_result_filter",
+                table: "asmt_metric_result",
+                filter: "instance.taken_onBETWEENjavascript:gs.dateGenerate('" + startdate_format + "','" + starttime + "')@javascript:gs.dateGenerate('" + enddate_format + "','" + endtime + "')"
+            };
+
+            applyFilter(taskFilter);
+            applyFilter(asmtMetricResultFilter);
+        }
+
+        function applyFilter(filter) {
+            SNC.canvas.interactiveFilters.setDefaultValue({
+                id: filter.id,
+                filters: [filter]
+            }, false);
+            my_dashboardMessageHandler.publishFilter(filter.table, filter.filter);
+        }
+
+        // Set default value to "this_month" on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            var dateRangeSelect = document.getElementById('dateRange');
+            dateRangeSelect.value = 'this_month';
+            filterResults();
+        });
+    </script>
+</j:jelly>
