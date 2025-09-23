@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide">
+<script>
+  var serviceSysIds = [];
+  var serviceNames = [];
+  var dashboardMessageHandler = new DashboardMessageHandler("custom_service_filter", function() {
+    resetServiceFilter();
+  });
+
+  $j(document).ready(function() {
+    $j("#serviceDropdown").select2();
+  });
+
+  function rebuildServiceFilterUI() {
+    var html = [];
+
+    for (var i = 0; i &lt; serviceSysIds.length; i++) {
+      html.push('&lt;li class="select2-search-choice"&gt;');
+      html.push('&lt;div&gt;' + serviceNames[i] + '&lt;/div&gt;');
+      html.push('&lt;a href="#" onClick="removeServiceFilterItem(\'' + serviceSysIds[i] + '\');return(false)" role="button" class="select2-search-choice-close"&gt;&lt;/a&gt;');
+      html.push('&lt;/li&gt;');
+    }
+
+    $j("#selectedServices ul:first").html(html.join(''));
+    $j('#serviceDropdown span.select2-chosen').text(serviceSysIds.length === 0 ? 'ALL' : '');
+  }
+
+  function publishServiceFilter() {
+    var filter = {
+      id: 'custom_service_filter',
+      table: 'cmdb_ci_service',
+      filter: serviceSysIds.length &gt; 0 ? 'sys_idIN' + serviceSysIds.join(',') : ''
+    };
+
+    SNC.canvas.interactiveFilters.setDefaultValue({ id: filter.id, filters: [filter] }, false);
+
+    if (serviceSysIds.length &gt; 0) {
+      dashboardMessageHandler.publishFilter(filter.table, filter.filter);
+    } else {
+      dashboardMessageHandler.removeFilter();
+    }
+  }
+
+  function removeServiceFilterItem(sysId) {
+    var index = serviceSysIds.indexOf(sysId);
+    if (index !== -1) {
+      serviceSysIds.splice(index, 1);
+      serviceNames.splice(index, 1);
+      rebuildServiceFilterUI();
+      publishServiceFilter();
+    }
+  }
+
+  function resetServiceFilter() {
+    serviceSysIds = [];
+    serviceNames = [];
+    rebuildServiceFilterUI();
+    publishServiceFilter();
+  }
+
+  function addServiceFilterItem() {
+    var selectedValue = $j('#serviceDropdown option:selected').val();
+    var selectedLabel = $j('#serviceDropdown option:selected').text();
+
+    if (selectedValue === "all") {
+      resetServiceFilter();
+    } else {
+      if (!serviceSysIds.includes(selectedValue)) {
+        serviceSysIds.push(selectedValue);
+        serviceNames.push(selectedLabel);
+      }
+      rebuildServiceFilterUI();
+      publishServiceFilter();
+    }
+  }
+</script>
+
+<g:evaluate>
+  var serviceList = [];
+  var gr = new GlideRecord('cmdb_ci_service');
+  gr.orderBy('name');
+  gr.query();
+
+  while (gr.next()) {
+    serviceList.push({
+      name: gr.getValue('name'),
+      sysId: gr.getUniqueValue()
+    });
+  }
+</g:evaluate>
+
+<div class="widget-content" style="padding:10px" id="serviceFilterWidget">
+  <select style="width:100%;" id="serviceDropdown" class="select2-search" onchange="addServiceFilterItem();">
+    <option value="all">ALL</option>
+    <j:forEach var="service" items="${serviceList}">
+      <g:evaluate var="service" jelly="true">
+        var name = jelly.service.name;
+        var sysId = jelly.service.sysId;
+      </g:evaluate>
+      <option value="${sysId}" label="${name}">${name}</option>
+    </j:forEach>
+  </select>
+
+  <div id="selectedServices" class="select2-container select2-container-multi interactive-filter__widget-content form_control" style="width: 100%;">
+    <ul class="select2-choices"></ul>
+  </div>
+</div>
+</j:jelly>
