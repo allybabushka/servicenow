@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+    <style>
+        .padded-box {
+            padding-top: 0px;
+        }
+        .form-control {
+            width: 80%; /* Adjust the width as needed */
+        }
+    </style>
+    <script>
+        var my_dashboardMessageHandler = new DashboardMessageHandler("FilterChangeRequest");
+
+        function publishFilter(searchTerm) {
+            var filter_message_change_request = {
+                id: "FilterChangeRequest_CR",
+                table: "change_request"
+            };
+            
+            var filter_message_incident = {
+                id: "FilterChangeRequest_INC",
+                table: "incident"
+            };
+
+            if (searchTerm == "") {
+                clearFilter();
+            } else {
+                var terms = searchTerm.split(",");
+                var filter_change_request = terms.map(function(term) {
+                    term = term.trim().toLowerCase();
+                    return "short_descriptionLIKE" + term + "^ORdescriptionLIKE" + term + "^ORclose_notesLIKE" + term + "^ORcmdb_ciLIKE" + term + "^ORimplementation_planLIKE" + term + "^ORbackout_planLIKE" + term + "^ORtest_planLIKE" + term;
+                }).join("^OR");
+                
+                var filter_incident = terms.map(function(term) {
+                    term = term.trim().toLowerCase();
+                    return "caused_by.short_descriptionLIKE" + term + "^ORcaused_by.descriptionLIKE" + term + "^ORcaused_by.close_notesLIKE" + term + "^ORcaused_by.cmdb_ciLIKE" + term + "^ORcaused_by.implementation_planLIKE" + term + "^ORcaused_by.backout_planLIKE" + term + "^ORcaused_by.test_planLIKE" + term + "^ORshort_descriptionLIKE" + term + "^ORdescriptionLIKE" + term + "^ORclose_notesLIKE" + term + "^ORcmdb_ciLIKE" + term;
+                }).join("^OR");
+                
+                filter_message_change_request.filter = filter_change_request;
+                filter_message_incident.filter = filter_incident;
+            }
+
+            console.log("Change Request Filter: ", filter_message_change_request.filter);
+            console.log("Incident Filter: ", filter_message_incident.filter);
+
+            SNC.canvas.interactiveFilters.setDefaultValue({
+                id: filter_message_change_request.id,
+                filters: [filter_message_change_request]
+            }, false);
+            my_dashboardMessageHandler.publishFilter(filter_message_change_request.table, filter_message_change_request.filter);
+
+            SNC.canvas.interactiveFilters.setDefaultValue({
+                id: filter_message_incident.id,
+                filters: [filter_message_incident]
+            }, false);
+            my_dashboardMessageHandler.publishFilter(filter_message_incident.table, filter_message_incident.filter);
+        }
+
+        function clearFilter() {
+            var filter_message_change_request = {
+                id: "FilterChangeRequest_CR",
+                table: "change_request",
+                filter: ""
+            };
+            
+            var filter_message_incident = {
+                id: "FilterChangeRequest_INC",
+                table: "incident",
+                filter: ""
+            };
+
+            SNC.canvas.interactiveFilters.setDefaultValue({
+                id: filter_message_change_request.id,
+                filters: [filter_message_change_request]
+            }, false);
+            my_dashboardMessageHandler.removeFilter();
+
+            SNC.canvas.interactiveFilters.setDefaultValue({
+                id: filter_message_incident.id,
+                filters: [filter_message_incident]
+            }, false);
+            my_dashboardMessageHandler.removeFilter();
+        }
+    </script>
+    <div class="padded-box">
+        <input id="searchTerm" type="text" class="form-control" value="" onchange="publishFilter(this.value);"></input>
+    </div>
+</j:jelly>
